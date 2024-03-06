@@ -1,0 +1,24 @@
+# Node.js
+node_modules/
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+lib/
+vendor/
+
+# Optional: Editor directories
+.idea/
+.vscode/
+
+# Optional: OS generated files
+.DS_Store
+Thumbs.db
