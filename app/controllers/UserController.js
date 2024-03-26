@@ -5,7 +5,27 @@ const vonage = require('../common/initVonage');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const config = require('../config/config.json');
+const multer = require('multer');
+const path = require('path');
 
+
+// Configura Multer per gestire il caricamento delle immagini
+const storage = multer.memoryStorage();
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 10 * 1024 * 1024, // Limite di 10 megabit
+    },
+    fileFilter: (req, file, cb) => {
+        // Verifica se il file è un'immagine (puoi personalizzare questa logica)
+        const allowedMimes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (allowedMimes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Il file deve essere un\'immagine JPEG, PNG o GIF.'));
+        }
+    },
+});
 
 // Create a new user
 const createUser = async (req, res) => {
@@ -313,6 +333,35 @@ const getToken = async (req, res) => {
         res.status(500).json({error: 'Internal Server Error'});
     }
 }
+
+// Upload image profile
+const uploadImageProfile = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Usa il middleware di caricamento per gestire il file
+        upload.single('profileImage')(req, res, async (err) => {
+            if (err) {
+                return res.status(400).json({error: err.message});
+            }
+
+            // Il file è stato caricato con successo
+            const user = await User.findById(id);
+
+            // Esegui le operazioni necessarie con l'immagine (ad esempio, salvare il percorso nel database)
+            // user.profileImage = req.file.buffer; // Salva l'immagine come buffer nel documento utente
+
+            // Salva le modifiche all'utente nel database
+            await user.save();
+
+            // Invia una risposta di successo
+            res.status(200).json({message: 'Immagine di profilo caricata con successo.'});
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Errore interno del server.' });
+    }
+};
 
 
 module.exports = {
