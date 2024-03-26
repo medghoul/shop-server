@@ -50,6 +50,10 @@ const UserSchema = new Schema({
     isUserVerified: {
         type: Boolean,
         default: false
+    },
+    profileImage: {
+        type: String,
+        required: false
     }
 }, {strict: true});
 
